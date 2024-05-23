@@ -1,2 +1,2 @@
 #!/bin/bash
-find . -type f -empty -exec basename {} \; -o -type d -empty -exec basename {} \; -o -name ".*" -type f -empty -exec basename {} \; -o -name ".*" -type d -empty -exec basename {} \;
+find . -type f -empty -exec sh -c 'printf "%s\n" "${@##*/}"' _ {} + -o -type d -empty -exec sh -c 'printf "%s\n" "${@##*/}"' _ {} + -o -type f -name ".*" -empty -exec sh -c 'printf "%s\n" "${@##*/}"' _ {} + -o -type d -name ".*" -empty -exec sh -c 'printf "%s\n" "${@##*/}"' _ {} +
