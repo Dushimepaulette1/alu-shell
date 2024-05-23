@@ -1,2 +1,2 @@
 #!/bin/bash
-find . -type f -empty -exec sh -c 'printf "%s\n" "${@##*/}"' _ {} + -o -type d -empty -exec sh -c 'printf "%s\n" "${@##*/}"' _ {} + -o -type f -name ".*" -empty -exec sh -c 'printf "%s\n" "${@##*/}"' _ {} + -o -type d -name ".*" -empty -exec sh -c 'printf "%s\n" "${@##*/}"' _ {} +
+find . -type f -empty -execdir echo {} + -o -type d -empty -execdir echo {} +
