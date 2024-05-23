@@ -1,2 +1,2 @@
 #!/bin/bash
-find . -type f -name "*.gif" -exec sh -c 'for f; do echo "${f%.gif}"; done' _ {} + | sort -f
+find . -type f -iname "*.gif" -exec basename -a --suffix=".gif" {} + | LC_ALL=C sort -f
