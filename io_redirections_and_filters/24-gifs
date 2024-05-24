@@ -1,2 +1,2 @@
 #!/bin/bash
-find . -type f -name '*.gif' -exec sh -c 'echo "${1%.*}"' _ {} \> temp_file; sort -f temp_file
+echo $(cut -c1 | tr -d " /n")
