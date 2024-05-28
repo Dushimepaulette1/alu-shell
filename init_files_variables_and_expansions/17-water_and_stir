@@ -1,0 +1,2 @@
+#!/bin/bash
+printf '%s\n' "$WATER" "$STIR" | tr -d '.itear' | tr 'stw' '012' | sed 's/^0*//' | bc | tr -d '\\' | tr '0123456789ABC' 'bestchol'
