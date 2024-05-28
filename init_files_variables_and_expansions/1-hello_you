@@ -1,2 +1,7 @@
 #!/bin/bash
-echo "hello $(whoami)"
+USERNAME=$(whoami)
+if [ "$USERNAME" == "root" ]; then
+    USERNAME="user"
+fi
+echo "hello $USERNAME"
+
