@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # This script groups visitors by IP and HTTP status code and displays the data
+
 process_log_file() {
   filename="$1"
 
@@ -15,31 +16,30 @@ process_log_file() {
     char_count = 0
     error_message = "Error: Log file not found\n(26 chars long)"
   }
-  NR == 1 {
-    if ($0 ~ /^2023/) {
-      found_header = 1
-      header = $0
-      char_count += length($0) + 1
+  {
+    if (NR == 1) {
+      if ($0 ~ /^2023/) {
+        found_header = 1
+        header = $0
+        char_count += length($0) + 1
+      } else {
+        print error_message
+        exit
+      }
     } else {
-      print error_message
-      exit
+      lines[NR-1] = $0
+      char_count += length($0) + 1
     }
   }
-  NR > 1 {
-    lines[NR-1] = $0
-    char_count += length($0) + 1
-  }
   END {
-    if (!found_header) {
-      print error_message
-    } else if (length(lines) == 0) {
+    if (!found_header || length(lines) == 0) {
       print error_message
     } else {
       print FILENAME
       print header
       print "msg - [Got]"
-      for (i in lines) {
-        print lines[i]
+      for (line in lines) {
+        print lines[line]
       }
       print "(" char_count " chars long)"
     }
