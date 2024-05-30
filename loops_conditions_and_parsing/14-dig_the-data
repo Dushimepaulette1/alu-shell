@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # This script groups visitors by IP and HTTP status code and displays the data
 
-log_file="apache-access.log"
+log_file="$1"
 
 # Check if the log file exists and is not empty
 if [ -s "$log_file" ]; then
     # Check if the log file has the correct format
     if awk '{count[$1" "$9]++} END {for (key in count) print count[key], key}' "$log_file" 2>/dev/null; then
-        # Display the grouped visitors by IP and HTTP status code
+        # Display the grouped visitors by IP and HTTP status code, sorted by occurrence number
         awk '{count[$1" "$9]++} END {for (key in count) print count[key], key}' "$log_file" | sort -nr | awk '{$1=$1;print}'
     else
         echo "Error: Wrong format log file"
@@ -19,3 +19,4 @@ else
         echo "Error: Log file is empty"
     fi
 fi
+
