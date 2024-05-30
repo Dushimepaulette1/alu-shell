@@ -9,35 +9,42 @@ process_log_file() {
     return
   fi
 
-  lines=()
-  while IFS= read -r line; do
-    lines+=("$line")
-  done < "$filename"
-
-  if [[ ${#lines[@]} -eq 0 ]]; then
-    echo "Error: Log file not found"
-    echo "(26 chars long)"
-    return
-  fi
-
-  if [[ ${#lines[@]} -lt 2 ]] || [[ ! ${lines[0]} =~ 2023 ]]; then
-    echo "Error: Log file not found"
-    echo "(26 chars long)"
-    return
-  fi
-
-  echo "$filename"
-  echo "${lines[0]}"
-  echo "msg - [Got]"
-  for line in "${lines[@]:1}"; do
-    echo "$line"
-  done
-
-  char_count=0
-  for line in "${lines[@]}"; do
-    ((char_count += ${#line} + 1)) # +1 for newline character
-  done
-  echo "(${char_count} chars long)"
+  awk '
+  BEGIN {
+    found_header = 0
+    char_count = 0
+    error_message = "Error: Log file not found\n(26 chars long)"
+  }
+  NR == 1 {
+    if ($0 ~ /^2023/) {
+      found_header = 1
+      header = $0
+      char_count += length($0) + 1
+    } else {
+      print error_message
+      exit
+    }
+  }
+  NR > 1 {
+    lines[NR-1] = $0
+    char_count += length($0) + 1
+  }
+  END {
+    if (!found_header) {
+      print error_message
+    } else if (length(lines) == 0) {
+      print error_message
+    } else {
+      print FILENAME
+      print header
+      print "msg - [Got]"
+      for (i in lines) {
+        print lines[i]
+      }
+      print "(" char_count " chars long)"
+    }
+  }
+  ' "$filename"
 }
 
 # Example usage:
@@ -45,4 +52,3 @@ process_log_file 'file_0'
 process_log_file 'file_1'
 process_log_file 'file_2'
 process_log_file 'file_3'
-
