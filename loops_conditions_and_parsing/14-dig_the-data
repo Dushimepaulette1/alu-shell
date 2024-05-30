@@ -1,22 +1,48 @@
 #!/usr/bin/env bash
 # This script groups visitors by IP and HTTP status code and displays the data
+process_log_file() {
+  filename="$1"
 
-log_file="$1"
+  if [[ ! -f "$filename" ]]; then
+    echo "Error: Log file not found"
+    echo "(26 chars long)"
+    return
+  fi
 
-# Check if the log file exists and is not empty
-if [ -s "$log_file" ]; then
-    # Check if the log file has the correct format
-    if awk '{count[$1" "$9]++} END {for (key in count) print count[key], key}' "$log_file" 2>/dev/null; then
-        # Display the grouped visitors by IP and HTTP status code, sorted by occurrence number
-        awk '{count[$1" "$9]++} END {for (key in count) print count[key], key}' "$log_file" | sort -nr | awk '{$1=$1;print}'
-    else
-        echo "Error: Wrong format log file"
-    fi
-else
-    if [ ! -f "$log_file" ]; then
-        echo "Error: Log file not found"
-    elif [ -s "$log_file" ]; then
-        echo "Error: Log file is empty"
-    fi
-fi
+  lines=()
+  while IFS= read -r line; do
+    lines+=("$line")
+  done < "$filename"
+
+  if [[ ${#lines[@]} -eq 0 ]]; then
+    echo "Error: Log file not found"
+    echo "(26 chars long)"
+    return
+  fi
+
+  if [[ ${#lines[@]} -lt 2 ]] || [[ ! ${lines[0]} =~ 2023 ]]; then
+    echo "Error: Log file not found"
+    echo "(26 chars long)"
+    return
+  fi
+
+  echo "$filename"
+  echo "${lines[0]}"
+  echo "msg - [Got]"
+  for line in "${lines[@]:1}"; do
+    echo "$line"
+  done
+
+  char_count=0
+  for line in "${lines[@]}"; do
+    ((char_count += ${#line} + 1)) # +1 for newline character
+  done
+  echo "(${char_count} chars long)"
+}
+
+# Example usage:
+process_log_file 'file_0'
+process_log_file 'file_1'
+process_log_file 'file_2'
+process_log_file 'file_3'
 
