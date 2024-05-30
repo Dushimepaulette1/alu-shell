@@ -12,34 +12,31 @@ process_log_file() {
 
   awk '
   BEGIN {
-    found_header = 0
+    header_found = 0
+    line_count = 0
     char_count = 0
     error_message = "Error: Log file not found\n(26 chars long)"
   }
   {
-    if (NR == 1) {
-      if ($0 ~ /^2023/) {
-        found_header = 1
-        header = $0
-        char_count += length($0) + 1
-      } else {
-        print error_message
-        exit
-      }
+    if (line_count == 0 && $0 ~ /^2023/) {
+      header = $0
+      header_found = 1
+      char_count += length($0) + 1
     } else {
-      lines[NR-1] = $0
+      lines[line_count] = $0
       char_count += length($0) + 1
     }
+    line_count++
   }
   END {
-    if (!found_header || length(lines) == 0) {
+    if (header_found == 0 || line_count == 1) {
       print error_message
     } else {
       print FILENAME
       print header
       print "msg - [Got]"
-      for (line in lines) {
-        print lines[line]
+      for (i = 1; i < line_count; i++) {
+        print lines[i]
       }
       print "(" char_count " chars long)"
     }
