@@ -1,51 +1,29 @@
-#!/usr/bin/env bash
-# This script groups visitors by IP and HTTP status code and displays the data
+#!/bin/bash
 
+# Define the function to process the log file
 process_log_file() {
   filename="$1"
 
   if [[ ! -f "$filename" ]]; then
     echo "Error: Log file not found"
-    echo "(26 chars long)"
-    return
+    return 1
   fi
 
+  # Use awk to process the log file and group visitors by IP and HTTP status code
   awk '
-  BEGIN {
-    header_found = 0
-    line_count = 0
-    char_count = 0
-    error_message = "Error: Log file not found\n(26 chars long)"
-  }
-  {
-    if (line_count == 0 && $0 ~ /^2023/) {
-      header = $0
-      header_found = 1
-      char_count += length($0) + 1
-    } else {
-      lines[line_count] = $0
-      char_count += length($0) + 1
+    {
+      ip_count[$2][$3]++
     }
-    line_count++
-  }
-  END {
-    if (header_found == 0 || line_count == 1) {
-      print error_message
-    } else {
-      print FILENAME
-      print header
-      print "msg - [Got]"
-      for (i = 1; i < line_count; i++) {
-        print lines[i]
+    END {
+      # Print the grouped data in the required format
+      for (ip in ip_count) {
+        for (code in ip_count[ip]) {
+          printf("%d %s %d\n", ip_count[ip][code], ip, code)
+        }
       }
-      print "(" char_count " chars long)"
     }
-  }
-  ' "$filename"
+  ' "$filename" | sort -nr
 }
 
 # Example usage:
-process_log_file 'file_0'
-process_log_file 'file_1'
-process_log_file 'file_2'
-process_log_file 'file_3'
+process_log_file 'your_log_file.log'
