@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Define the function to process the log file
 process_log_file() {
   filename="$1"
